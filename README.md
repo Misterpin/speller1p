@@ -6,41 +6,46 @@
 
 ## 1. Что понадобится
 
-- macOS или Linux с терминалом и Git. Команды ниже написаны для этих систем.
+- Windows 10/11, PowerShell и Git. Все команды ниже предназначены для PowerShell; открывать WSL не нужно. Если Git ещё не установлен, выполните `winget install --id Git.Git -e`.
 - Интернет **при первой установке** Python и зависимостей. Сам базовый спеллер после установки работает офлайн.
-- [`uv`](https://docs.astral.sh/uv/getting-started/installation/) для установки Python и создания отдельного окружения. Если у вас есть Homebrew на macOS: `brew install uv`. Если нет, используйте [официальную инструкцию установки uv](https://docs.astral.sh/uv/getting-started/installation/).
+- [`uv`](https://docs.astral.sh/uv/getting-started/installation/) для установки Python и создания отдельного окружения. Установите его через WinGet:
 
-Убедитесь, что команда работает:
-
-```bash
-uv --version
+```powershell
+winget install --id astral-sh.uv -e
 ```
 
-Если после установки терминал отвечает `command not found`, откройте новое окно терминала и повторите проверку.
+Если `winget` недоступен, используйте [официальную инструкцию установки uv для Windows](https://docs.astral.sh/uv/getting-started/installation/). После установки откройте **новое окно PowerShell** и убедитесь, что команды работают:
+
+```powershell
+uv --version
+git --version
+```
+
+Если PowerShell пишет, что команда не найдена, закройте и снова откройте его после установки.
 
 ## 2. Скачать проект и установить его через uv
 
 Скопируйте и выполните команды по порядку:
 
-```bash
+```powershell
 git clone https://github.com/Misterpin/speller1p.git
-cd speller1p
+Set-Location speller1p
 uv python install 3.12
 uv venv --python 3.12
 uv pip install -e .
 ```
 
-Команда `uv venv` создаёт изолированную папку `.venv` внутри проекта. Если репозиторий скачан ZIP-архивом вместо `git clone`, распакуйте его, перейдите в папку с `pyproject.toml` и начните с `uv python install 3.12`.
+Команда `uv venv` создаёт изолированную папку `.venv` внутри проекта. Активировать её вручную не нужно: `uv run` ниже использует её сам. Если репозиторий скачан ZIP-архивом вместо `git clone`, распакуйте его, откройте PowerShell в папке с `pyproject.toml` и начните с `uv python install 3.12`.
 
 ## 3. Запустить интерфейс
 
 Оставаясь в папке `speller1p`, выполните:
 
-```bash
-uv run --no-sync python -m eeg_speller.web.server --port 8765 --output runs/gui
+```powershell
+uv run --no-sync python -m eeg_speller.web.server --port 8765 --output runs\gui
 ```
 
-В терминале появится `Open http://127.0.0.1:8765/`. Откройте **[http://127.0.0.1:8765/](http://127.0.0.1:8765/)** в браузере на этом же компьютере. Оставьте терминал с сервером открытым. Для остановки нажмите в нём `Ctrl+C`.
+В PowerShell появится `Open http://127.0.0.1:8765/`. Откройте **[http://127.0.0.1:8765/](http://127.0.0.1:8765/)** в браузере на этом же компьютере. Оставьте окно PowerShell с сервером открытым. Для остановки нажмите в нём `Ctrl+C`.
 
 Если порт 8765 занят, замените `8765` в команде и в адресе браузера на другой свободный порт, например `8766`. После перезапуска сервера обновите страницу.
 
@@ -56,7 +61,7 @@ uv run --no-sync python -m eeg_speller.web.server --port 8765 --output runs/gui
 
 Чтобы набрать **«привет»**, оставьте эту фразу в поле тренировки. Интерфейс последовательно покажет цели `п → р → и → в → е → т`. Для каждой буквы повторяйте правило из пункта 3. Вся фраза займёт примерно две минуты. Если выбрать неправильный символ, клетка `⌫` позволяет удалить последнюю букву. Клетка `␣` вводит **настоящий пробел в текст**; клавиша пробела на клавиатуре только подаёт сигнал во время вспышки.
 
-Кнопка **«Остановить»** завершает сессию досрочно. После завершения можно изменить YAML-профиль или фразу и начать снова. Журнал создаётся в `runs/gui/`; эта папка исключена из Git, поскольку в ней может быть набранный текст.
+Кнопка **«Остановить»** завершает сессию досрочно. После завершения можно изменить YAML-профиль или фразу и начать снова. Журнал создаётся в `runs\gui\`; эта папка исключена из Git, поскольку в ней может быть набранный текст.
 
 ## 5. Что означают результаты и модели
 
@@ -69,21 +74,22 @@ uv run --no-sync python -m eeg_speller.web.server --port 8765 --output runs/gui
 
 ## 6. Необязательно: включить локальный Qwen
 
-Этот раздел нужен только для кнопки продолжения текста. Базовый интерфейс из разделов 2–4 уже работает без Qwen. Модель весит около 429 МБ и скачивается **отдельно, вне репозитория**. Пример для macOS с Homebrew и CPU-сборкой `llama.cpp`:
+Этот раздел нужен только для кнопки продолжения текста. Базовый интерфейс из разделов 2–4 уже работает без Qwen. Модель весит около 429 МБ и скачивается **отдельно, вне репозитория**. Для CPU-сборки `llama.cpp` на Windows установите [Visual Studio 2022](https://visualstudio.microsoft.com/vs/community/) с компонентом **Desktop development with C++** согласно [инструкции `llama.cpp` для Windows](https://github.com/ggml-org/llama.cpp/blob/master/docs/build.md#build-with-cmake). Затем откройте **Developer PowerShell for VS 2022** и перейдите в папку `speller1p`.
 
-```bash
-brew install cmake
-mkdir -p ../speller-local/models
-git clone https://github.com/ggml-org/llama.cpp.git ../speller-local/llama.cpp
-cmake -S ../speller-local/llama.cpp -B ../speller-local/llama.cpp/build-cpu -DGGML_METAL=OFF -DGGML_BLAS=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_CURL=OFF
-cmake --build ../speller-local/llama.cpp/build-cpu --target llama-cli -j 4
-curl -fL https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_0.gguf -o ../speller-local/models/qwen2.5-0.5b-instruct-q4_0.gguf
+```powershell
+New-Item -ItemType Directory -Force ..\speller-local\models | Out-Null
+git clone https://github.com/ggml-org/llama.cpp.git ..\speller-local\llama.cpp
+cmake -S ..\speller-local\llama.cpp -B ..\speller-local\llama.cpp\build-cpu -DLLAMA_BUILD_TESTS=OFF -DLLAMA_CURL=OFF -DGGML_CUDA=OFF -DGGML_VULKAN=OFF
+cmake --build ..\speller-local\llama.cpp\build-cpu --config Release --target llama-cli -j 4
+Invoke-WebRequest -Uri 'https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_0.gguf' -OutFile '..\speller-local\models\qwen2.5-0.5b-instruct-q4_0.gguf'
 ```
 
-Остановите прежний сервер (`Ctrl+C`) и запустите его с двумя дополнительными аргументами:
+Остановите прежний сервер (`Ctrl+C`), найдите собранный `llama-cli.exe` и запустите сервер с двумя дополнительными аргументами:
 
-```bash
-uv run --no-sync python -m eeg_speller.web.server --port 8765 --output runs/gui --qwen-model ../speller-local/models/qwen2.5-0.5b-instruct-q4_0.gguf --qwen-cli ../speller-local/llama.cpp/build-cpu/bin/llama-cli
+```powershell
+$llamaCli = (Get-ChildItem ..\speller-local\llama.cpp\build-cpu -Filter llama-cli.exe -Recurse | Select-Object -First 1).FullName
+if (-not $llamaCli) { throw 'Не найден llama-cli.exe: проверьте сборку выше' }
+uv run --no-sync python -m eeg_speller.web.server --port 8765 --output runs\gui --qwen-model ..\speller-local\models\qwen2.5-0.5b-instruct-q4_0.gguf --qwen-cli "$llamaCli"
 ```
 
 Обновите страницу. После выбора хотя бы одного символа станет доступна кнопка **«Предложить продолжение»**. Веса модели и `llama.cpp` лежат рядом с репозиторием, поэтому не попадут в коммит. Источник весов: [официальный репозиторий Qwen GGUF](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF).
@@ -92,20 +98,26 @@ uv run --no-sync python -m eeg_speller.web.server --port 8765 --output runs/gui 
 
 Для проверки кода установите тестовую зависимость и запустите тесты:
 
-```bash
+```powershell
 uv pip install -e '.[test]'
 uv run --no-sync python -m pytest -q
 ```
 
 Остальные команды исследовательского прототипа:
 
-```bash
-uv run --no-sync python -m eeg_speller run --config configs/default.yaml
-uv run --no-sync python -m eeg_speller run --config configs/no_llm.yaml
-uv run --no-sync python -m eeg_speller bench-llm --config configs/exp01.yaml
-uv run --no-sync python -m eeg_speller experiment --config configs/compare_llm.yaml
-uv run --no-sync python -m eeg_speller replay runs/<session_id> --config configs/default.yaml
-uv run --no-sync python -m eeg_speller export runs/<session_id>
+```powershell
+uv run --no-sync python -m eeg_speller run --config configs\default.yaml
+uv run --no-sync python -m eeg_speller run --config configs\no_llm.yaml
+uv run --no-sync python -m eeg_speller bench-llm --config configs\exp01.yaml
+uv run --no-sync python -m eeg_speller experiment --config configs\compare_llm.yaml
+```
+
+Для `replay` и `export` подставьте реальный путь к созданной сессии вместо примера:
+
+```powershell
+$sessionPath = 'runs\ИМЯ_КАТАЛОГА_СЕССИИ'
+uv run --no-sync python -m eeg_speller replay $sessionPath --config configs\default.yaml
+uv run --no-sync python -m eeg_speller export $sessionPath
 ```
 
 Параметры и допущения описаны в [`docs/ASSUMPTIONS.md`](docs/ASSUMPTIONS.md), состав записи — в [`docs/DATA_MODEL.md`](docs/DATA_MODEL.md), соответствие требованиям — в [`docs/TRACEABILITY.md`](docs/TRACEABILITY.md). Исходное ТЗ находится в [`input/TZ.md`](input/TZ.md). Подробнее о браузерном режиме — в [`docs/GUI.md`](docs/GUI.md).
