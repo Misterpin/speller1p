@@ -1,6 +1,8 @@
 inherits: default.yaml
 participant_id: GUI-001
 run_mode: live
+physiology:
+  plugin: keyboard_space
 task_id: GUI
 stimulus:
   paradigm: row_column
