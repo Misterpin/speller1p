@@ -121,6 +121,8 @@ def check_integrity(session_dir):
     epochs = {e["epoch_id"] for e in events if e["type"] == "epoch_started"}
     for eid in epochs:
         types = {e["type"] for e in events if e["epoch_id"] == eid}
+        if "epoch_aborted" in types:
+            continue
         for required in ("epoch_started", "physiology_observation", "posterior_computed", "symbol_decided"):
             if required not in types:
                 errors.append(f"epoch {eid} missing {required}")
