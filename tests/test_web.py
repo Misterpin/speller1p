@@ -13,6 +13,7 @@ def test_keyboard_hits_decode_symbol_and_keep_session_integrity(tmp_path: Path):
     assert state["finished"]
     assert check_integrity(session.storage.directory)["complete"]
     events = read_events(session.storage.directory)
+    assert not any(event["type"] == "epoch_aborted" for event in events)
     assert sum(event["type"] == "stimulus_event" for event in events) == 24
     assert all(event["payload"]["source"] == "keyboard_space"
                for event in events if event["type"] == "physiology_observation")
